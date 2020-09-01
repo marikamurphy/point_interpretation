@@ -4,39 +4,35 @@
 
 #include <SubscribeToKinect.h>
 
-class SubscribeToKinect {
-    private:
+using namespace std;
 
+/* Constructor*/
+SubscribeToKinect::SubscribeToKinect() {}
 
-    public:
+/* Return the color and depth image (in that order) in a vector. */
+vector<cv::Mat> SubscribeToKinect::get_color_and_depth() {
+    vector<cv::Mat> ret;
+    ret.push_back(color_image);
+    ret.push_back(depth_image);
+    return ret;
+}
 
-    /* Constructor*/
-    SubscribeToKinect::SubscribeToKinect() {}
+void SubscribeToKinect::save_cv_mats() {
+    
+}
 
-    /* Return the color and depth image (in that order) in a vector. */
-    vector<cv::Mat> SubscribeToKinect::get_color_and_depth() {
-        vector<cv::Mat> ret;
-        ret.push_back(color_image);
-        ret.push_back(depth_image);
-        return ret;
-    }
-
-    void SubscribeToKinect::save_cv_mats() {
-
-    }
-
-    /* Get camera calibration values.  The values are in the order of ???? */
-    vector<double> SubscribeToKinect::camera_info_callback(const sensor_msgs::CameraInfo::ConstPtr &msg) {
-        vector<double> ret;
-        ret.push_back(msg->K[0]);
-        ret.push_back(msg->K[4]);
-        ret.push_back(msg->K[2]);
-        ret.push_back(msg->K[5]);
-        return ret;
-    }
+/* Get camera calibration values.  The values are in the order of ???? */
+vector<double> SubscribeToKinect::camera_info_callback(const sensor_msgs::CameraInfo::ConstPtr &msg) {
+    vector<double> ret;
+    ret.push_back(msg->K[0]);
+    ret.push_back(msg->K[4]);
+    ret.push_back(msg->K[2]);
+    ret.push_back(msg->K[5]);
+    return ret;
+}
 
     // Just pass in argc and argv from main program
-    void SubscribeToKinect::logic(int argc, char **argv, bool FLAGS_disable_multi_thread) {
+void SubscribeToKinect::logic(int argc, char **argv, bool FLAGS_disable_multi_thread) {
         // point_node is the node name
         ros::init(argc, argv, "point_node");
         // Start a roscpp node
@@ -79,7 +75,5 @@ class SubscribeToKinect {
         std::cout<<"running"<<std::endl;
 
         // Run openposes on the cv mats: TODO much later
-
-    }
-
 }
+

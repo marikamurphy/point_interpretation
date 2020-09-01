@@ -9,9 +9,10 @@
 #include <ros/ros.h> // Ros functionalities
 #include <sensor_msgs/CameraInfo.h> 
 #include <sensor_msgs/PointCloud2.h>
-#include <vector> // Vector
 
-class subscribe_to_kinect {
+using namespace std;
+
+class SubscribeToKinect {
     private:
         cv::Mat depth_image;
         cv::Mat color_image;
@@ -20,8 +21,9 @@ class subscribe_to_kinect {
     public:
         SubscribeToKinect();
         vector<cv::Mat> get_color_and_depth();
+        void save_cv_mats();
         vector<double> camera_info_callback(const sensor_msgs::CameraInfo::ConstPtr &msg);
         void logic(int argc, char **argv, bool FLAGS_disable_multi_thread);
-}
+};
 
 #endif
