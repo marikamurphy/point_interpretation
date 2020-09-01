@@ -1,0 +1,6 @@
+.catkin_tools
+.vscode
+*.png
+src/gazebo_plugin/
+*.bag
+other/objectDetection/__pycache__/
