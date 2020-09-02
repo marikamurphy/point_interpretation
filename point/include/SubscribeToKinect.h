@@ -9,6 +9,7 @@
 #include <ros/ros.h> // Ros functionalities
 #include <sensor_msgs/CameraInfo.h> 
 #include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/Image.h>
 
 using namespace std;
 

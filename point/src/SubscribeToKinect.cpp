@@ -65,10 +65,10 @@ void SubscribeToKinect::logic(int argc, char **argv, bool FLAGS_disable_multi_th
         //message_filters::Subscriber ptCloud(node, "camera/depth/points", 10);
         typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image> MySyncPolicy;
         message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), image_test, depth_image_test);
-        sync.registerCallback(boost::bind(&SubscribeToKinect::save_cv_mats, &this, _1, _2));
+        sync.registerCallback(boost::bind(&SubscribeToKinect::save_cv_mats, this, _1));
         ros::Subscriber cam_intrinsic_params = node.subscribe("/camera/depth_registered/sw_registered/camera_info",
-            10, &SubscribeToKinect::cameraInfoCallback, &this);
-        this.marker_pub = node.advertise<visualization_msgs::Marker>("visualization_marker", 10);
+            10, &SubscribeToKinect::camera_info_callback, this, _1);
+        this->marker_pub = node.advertise<visualization_msgs::Marker>("visualization_marker", 10);
         
         std::cout<<"running"<<std::endl;
         ros::spin();
