@@ -17,8 +17,8 @@ vector<cv::Mat> SubscribeToKinect::get_color_and_depth() {
     return ret;
 }
 
-void SubscribeToKinect::save_cv_mats() {
-    
+void SubscribeToKinect::save_cv_mats(const sensor_msgs::Image::ConstPtr &color, const sensor_msgs::Image::ConstPtr &depth) {
+    cout << "Hello" << endl;
 }
 
 /* Get camera calibration values.  The values are in the order of ???? */
@@ -32,12 +32,31 @@ vector<double> SubscribeToKinect::camera_info_callback(const sensor_msgs::Camera
 }
 
     // Just pass in argc and argv from main program
-void SubscribeToKinect::logic(int argc, char **argv, bool FLAGS_disable_multi_thread) {
+void logic(int argc, char **argv, bool FLAGS_disable_multi_thread) {
         // point_node is the node name
         ros::init(argc, argv, "point_node");
         // Start a roscpp node
         ros::NodeHandle node;
+        // Create sub
+        SubscribeToKinect sub;
+        message_filters::Subscriber<sensor_msgs::Image> depth_image_test(node, "/camera/depth/image", 10);
+        message_filters::Subscriber<sensor_msgs::Image> image_test(node, "/camera/rgb/image_color", 10);
+        //message_filters::Subscriber ptCloud(node, "camera/depth/points", 10);
+        typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image> MySyncPolicy;
+        message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), image_test, depth_image_test);
+        sync.registerCallback(boost::bind(&SubscribeToKinect::save_cv_mats, &sub, _1, _2));
+        ros::Subscriber cam_intrinsic_params = node.subscribe("/camera/depth_registered/sw_registered/camera_info",
+            10, &SubscribeToKinect::camera_info_callback, &sub, _1);
+        sub->marker_pub = node.advertise<visualization_msgs::Marker>("visualization_marker", 10);
         
+        std::cout<<"running"<<std::endl;
+        ros::spin();
+        std::cout<<"running"<<std::endl;
+
+
+        // Run openposes on the cv mats: TODO much later
+}
+
         // Use in open pose code
         // op::Wrapper opWrapper{op::ThreadManagerMode::Asynchronous};
         // try {
@@ -59,21 +78,3 @@ void SubscribeToKinect::logic(int argc, char **argv, bool FLAGS_disable_multi_th
         // } catch (const std::exception& e) {
         //     return -1;
         // }
-        
-        message_filters::Subscriber<sensor_msgs::Image> depth_image_test(node, "/camera/depth/image", 10);
-        message_filters::Subscriber<sensor_msgs::Image> image_test(node, "/camera/rgb/image_color", 10);
-        //message_filters::Subscriber ptCloud(node, "camera/depth/points", 10);
-        typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image> MySyncPolicy;
-        message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), image_test, depth_image_test);
-        sync.registerCallback(boost::bind(&SubscribeToKinect::save_cv_mats, this, _1));
-        ros::Subscriber cam_intrinsic_params = node.subscribe("/camera/depth_registered/sw_registered/camera_info",
-            10, &SubscribeToKinect::camera_info_callback, this, _1);
-        this->marker_pub = node.advertise<visualization_msgs::Marker>("visualization_marker", 10);
-        
-        std::cout<<"running"<<std::endl;
-        ros::spin();
-        std::cout<<"running"<<std::endl;
-
-        // Run openposes on the cv mats: TODO much later
-}
-

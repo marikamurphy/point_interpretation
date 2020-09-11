@@ -10,6 +10,7 @@
 #include <sensor_msgs/CameraInfo.h> 
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/Image.h>
+#include <visualization_msgs/Marker.h>
 
 using namespace std;
 
@@ -22,9 +23,9 @@ class SubscribeToKinect {
     public:
         SubscribeToKinect();
         vector<cv::Mat> get_color_and_depth();
-        void save_cv_mats();
+        void save_cv_mats(const sensor_msgs::Image::ConstPtr &color, const sensor_msgs::Image::ConstPtr &depth);
         vector<double> camera_info_callback(const sensor_msgs::CameraInfo::ConstPtr &msg);
-        void logic(int argc, char **argv, bool FLAGS_disable_multi_thread);
+        //void logic(int argc, char **argv, bool FLAGS_disable_multi_thread);
 };
 
 #endif
