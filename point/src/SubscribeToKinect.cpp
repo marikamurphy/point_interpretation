@@ -22,13 +22,13 @@ void SubscribeToKinect::save_cv_mats(const sensor_msgs::Image::ConstPtr &color, 
 }
 
 /* Get camera calibration values.  The values are in the order of ???? */
-vector<double> SubscribeToKinect::camera_info_callback(const sensor_msgs::CameraInfo::ConstPtr &msg) {
+void SubscribeToKinect::camera_info_callback(const sensor_msgs::CameraInfo::ConstPtr &msg) {
     vector<double> ret;
     ret.push_back(msg->K[0]);
     ret.push_back(msg->K[4]);
     ret.push_back(msg->K[2]);
     ret.push_back(msg->K[5]);
-    return ret;
+    //return ret;
 }
 
     // Just pass in argc and argv from main program
@@ -46,8 +46,8 @@ void logic(int argc, char **argv, bool FLAGS_disable_multi_thread) {
         message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), image_test, depth_image_test);
         sync.registerCallback(boost::bind(&SubscribeToKinect::save_cv_mats, &sub, _1, _2));
         ros::Subscriber cam_intrinsic_params = node.subscribe("/camera/depth_registered/sw_registered/camera_info",
-            10, &SubscribeToKinect::camera_info_callback, &sub, _1);
-        sub->marker_pub = node.advertise<visualization_msgs::Marker>("visualization_marker", 10);
+            10, &SubscribeToKinect::camera_info_callback, &sub);
+        //sub.marker_pub = node.advertise<visualization_msgs::Marker>("visualization_marker", 10);
         
         std::cout<<"running"<<std::endl;
         ros::spin();
