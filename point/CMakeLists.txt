@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   sensor_msgs
   message_filters
-  # cv_bridge
+  cv_bridge
   # tf2
   # tf2_ros
   
