@@ -18,11 +18,9 @@ vector<cv::Mat> SubscribeToKinect::get_color_and_depth() {
 }
 
 void SubscribeToKinect::save_cv_mats(const sensor_msgs::Image::ConstPtr &color, const sensor_msgs::Image::ConstPtr &depth) {
-    // color_image = *color.clone();
-    // depth_image = *depth.clone();
-    std::cout <<"Inside save_cv_mats"<< std::endl;
+
     color_image = cv_bridge::toCvCopy(color, sensor_msgs::image_encodings::BGR8)->image;
-    depth_image = cv_bridge::toCvCopy(depth, sensor_msgs::image_encodings::BGR8)->image;
+    depth_image = cv_bridge::toCvCopy(depth, sensor_msgs::image_encodings::TYPE_16UC1)->image;
 }
 
 /* Get camera calibration values.  The values are in the order of ???? */

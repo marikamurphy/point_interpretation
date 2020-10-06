@@ -232,16 +232,18 @@ Point findEndpoint (MatrixXd arm_in_2d) {
     return myIntercept;
 }
 
-void subscribe_to_kinect (ros::NodeHandle node, SubscribeToKinect sub) {
+
+void subscribe_to_kinect (ros::NodeHandle &node, SubscribeToKinect &sub) {
    
-    //message_filters::Subscriber<sensor_msgs::Image> depth_image_test(node, "/camera/depth/image", 10);
-    //message_filters::Subscriber<sensor_msgs::Image> image_test(node, "/camera/rgb/image_color", 10);
-    message_filters::Subscriber<sensor_msgs::Image> depth_image_test(node, "/kinect2/hd/image_color", 10);
-    message_filters::Subscriber<sensor_msgs::Image> image_test(node, "/kinect2/hd/image_color", 10);
+    message_filters::Subscriber<sensor_msgs::Image> depth_image_test(node, "/camera/depth/image", 10);
+    message_filters::Subscriber<sensor_msgs::Image> image_test(node, "/camera/rgb/image_color", 10);
+    //message_filters::Subscriber<sensor_msgs::Image> depth_image_test(node, "/kinect2/hd/image_color", 10);
+    //message_filters::Subscriber<sensor_msgs::Image> image_test(node, "/kinect2/hd/image_color", 10);
     //message_filters::Subscriber ptCloud(node, "camera/depth/points", 10);
     typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image> MySyncPolicy;
     message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), image_test, depth_image_test);
     sync.registerCallback(boost::bind(&SubscribeToKinect::save_cv_mats, &sub, _1, _2));
+
     //ros::Subscriber cam_intrinsic_params = node.subscribe("/camera/depth_registered/sw_registered/camera_info",
         //10, &SubscribeToKinect::camera_info_callback, &sub);
     //sub.marker_pub = node.advertise<visualization_msgs::Marker>("visualization_marker", 10);
@@ -255,21 +257,25 @@ int main(int argc, char **argv) {
     ros::NodeHandle node;
     ros::Rate r(10); // 10 hz
     SubscribeToKinect sub;
-    subscribe_to_kinect(node, sub);
+    message_filters::Subscriber<sensor_msgs::Image> depth_image_test(node, "/camera/depth/image", 10);
+    message_filters::Subscriber<sensor_msgs::Image> image_test(node, "/camera/rgb/image_color", 10);
+    typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image> MySyncPolicy;
+    message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), image_test, depth_image_test);
+    sync.registerCallback(boost::bind(&SubscribeToKinect::save_cv_mats, &sub, _1, _2));
+
     
     /* Send image will load the image and use the client server 
      * it to python for object recognition. */
-    cv::namedWindow("Display window", WINDOW_AUTOSIZE);// Create a window for display.
-    cv::imshow("Display window", sub.color_image);                   // Show our image inside it.
+    // cv::namedWindow("Display window", WINDOW_AUTOSIZE);// Create a window for display.
+    // cv::imshow("Display window", sub.color_image);                   // Show our image inside it.
     Client *client = new Client();
     while(ros::ok()){
         if(!sub.color_image.empty()){
-        client->sendImage(sub.color_image);
-        vector<Point> boxes = client->getBoxes();
-        vector<string> labels = client->getLabels();
-        printBoxes(sub.color_image, boxes, labels);
-        imshow("out_image", sub.color_image);
-
+            client->sendImage(sub.color_image);
+            vector<Point> boxes = client->getBoxes();
+            vector<string> labels = client->getLabels();
+            printBoxes(sub.color_image, boxes, labels);
+            imshow("out_image", sub.color_image);
         }
         else{
             std::cout <<"empty"<< std::endl;
@@ -277,7 +283,6 @@ int main(int argc, char **argv) {
         ros::spinOnce();
         r.sleep();
     }
-    
     
     return 0;
 }
