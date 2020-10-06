@@ -15,3 +15,5 @@ Before running the main logic in point_interpretation, you need to start the ser
 
 Now you can run point_interpretation.  The executable should be in the build directory you created once you compile with *make*.
 
+rosrun point point
+rosbag play -l [bagname]
