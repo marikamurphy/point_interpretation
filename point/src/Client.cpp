@@ -14,7 +14,7 @@
 
 #define PORT 3211 
 #define IP "127.0.0.1"
-#define ARRLEN 256
+#define ARRLEN 1024
 #define LABELLEN 1024
 
 using namespace std;
@@ -145,7 +145,10 @@ vector<Point> Client::interpretBuf(char buf[ARRLEN]){
     while(buf[i] != ']'){
         std::string num ="";
         while(buf[i] != ',' && buf[i] != ']'){
-            num.push_back(buf[i]);
+            if(buf[i]>21 && buf[i] < 126){
+                num.push_back(buf[i]);
+
+            }
             i++;
         }
         if(buf[i] == ',')
@@ -173,7 +176,7 @@ vector<string> Client::interpretLabels(char buf[LABELLEN]){
     while(buf[i] != ']'){
         std::string label ="";
         while(buf[i] != ',' && buf[i] != ']'){
-            if(buf[i] != '\"')
+            if(buf[i] != '\"' && buf[i]>21 && buf[i] < 126)
                 label.push_back(buf[i]);
             i++;
         }
