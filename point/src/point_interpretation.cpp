@@ -285,22 +285,21 @@ int main(int argc, char **argv) {
     while(ros::ok()){
         
         if(!sub.color_image.empty()){
-            if( client->mtx.try_lock()){
+            //if( client->mtx.try_lock()){
                 client->sendImage(sub.color_image);
                 vector<Point> boxes = client->getBoxes();
                 vector<string> labels = client->getLabels();
                 printBoxes(sub.color_image, boxes, labels);
                 imshow("out_image", sub.color_image);
-            } else{
-                client->mtx.unlock();
-            }
+            //} else{
+                //client->mtx.unlock();
+            //}
         }
         else{
             std::cout <<"empty"<< std::endl;
         }
         ros::spinOnce();
         r.sleep();
-        //ros::Duration(5).sleep();
         
     }
     

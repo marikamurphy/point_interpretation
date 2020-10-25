@@ -146,7 +146,7 @@ void Client::sendCV(int sockfd, cv::Mat src)
     
     labels = interpretLabels(labelBuf);
     //lock up
-    mtx.unlock();
+    //mtx.unlock();
     
 }
 
