@@ -79,6 +79,8 @@ while running:
    msg = json.dumps(boxes)
    msg = bytes(msg, "utf-8")
    c.send(msg)
+   n = c.recv(INTSIZE)
+   #n = int.from_bytes(n, byteorder='little')
    #send back labels
    msg = json.dumps(pred_cls)
    msg = bytes(msg, "utf-8")

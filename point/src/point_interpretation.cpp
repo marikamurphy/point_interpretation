@@ -131,13 +131,24 @@ MatrixXd findIntercepts(MatrixXd arm_in_2d, int height, int width) {
 }
 
 /* Show the boxes on the cv image. */
-void printBoxes(Mat out_image, vector< Point> boxes, vector<string> labels) {
+void printBoxes(Mat out_image, vector<Point> boxes, vector<string> labels) {
+    // for(int i = 0; i < boxes.size(); i++){
+    //     std::cout << boxes.at(i) <<std::endl;
+    // }
+    // std::cout << "end boxes" <<std::endl;
+    // for(int i = 0; i < labels.size(); i++){
+    //     std::cout << labels.at(i) <<std::endl;
+    // }
     cv::Scalar colorScalar = cv::Scalar(94, 206, 165) ;
-    for(int i = 0; i < boxes.size(); i+=2){
-        rectangle(out_image, boxes.at(i), boxes.at(i+1), colorScalar);
+    for(int i = 1; i < boxes.size(); i+=2){
+        rectangle(out_image, boxes.at(i-1), boxes.at(i), colorScalar);
+	//std::cout << "After rect" << std::endl;
+	//std::cout << labels.at(i/2) <<std::endl;
         putText(out_image, labels.at(i/2), boxes.at(i), FONT_HERSHEY_SIMPLEX, 1, colorScalar);
+	//std::cout << "After putText" << std::endl;
     }
     
+	std::cout << "Outside loop print boxes" << std::endl;
 }
 
 /* Check if a point is inside a box and which boxes. */
@@ -267,21 +278,30 @@ int main(int argc, char **argv) {
     /* Send image will load the image and use the client server 
      * it to python for object recognition. */
     // cv::namedWindow("Display window", WINDOW_AUTOSIZE);// Create a window for display.
-    // cv::imshow("Display window", sub.color_image);                   // Show our image inside it.
+    // cv::imshow("Display window", sub.color_image); 
+
+                      // Show our image inside it.
     Client *client = new Client();
     while(ros::ok()){
+        
         if(!sub.color_image.empty()){
-            client->sendImage(sub.color_image);
-            vector<Point> boxes = client->getBoxes();
-            vector<string> labels = client->getLabels();
-            printBoxes(sub.color_image, boxes, labels);
-            imshow("out_image", sub.color_image);
+            if( client->mtx.try_lock()){
+                client->sendImage(sub.color_image);
+                vector<Point> boxes = client->getBoxes();
+                vector<string> labels = client->getLabels();
+                printBoxes(sub.color_image, boxes, labels);
+                imshow("out_image", sub.color_image);
+            } else{
+                client->mtx.unlock();
+            }
         }
         else{
             std::cout <<"empty"<< std::endl;
         }
         ros::spinOnce();
         r.sleep();
+        //ros::Duration(5).sleep();
+        
     }
     
     return 0;

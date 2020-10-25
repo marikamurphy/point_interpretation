@@ -117,14 +117,22 @@ void Client::sendCV(int sockfd, cv::Mat src)
     cout << "sent data" << endl;
     
     //get back coordinates
+    //mtx.lock();
     char buffer[ARRLEN];
+    
     bzero(buffer, ARRLEN);
     if (read(sockfd, buffer, sizeof(buffer)) < 0)
     {
         perror("ERROR reading from socket");
     }
     printf("%s\n", buffer);
-
+    boxes = interpretBuf(buffer);
+    //need to wait to finish processing before getting the labels
+    if (write(sockfd, &len, sizeof(len)) < 0)
+    {
+        perror("ERROR writing to socket");
+    }
+    cout << "continue" << endl;
     char labelBuf[LABELLEN];
     bzero(labelBuf, LABELLEN);
     if (read(sockfd, labelBuf, sizeof(labelBuf)) < 0)
@@ -132,9 +140,14 @@ void Client::sendCV(int sockfd, cv::Mat src)
         perror("ERROR reading from socket");
     }
     printf("%s\n", labelBuf);
-
-    boxes = interpretBuf(buffer);
+    //printf("%p\n", *labelBuf);
+    //lock down
+    
+    
     labels = interpretLabels(labelBuf);
+    //lock up
+    mtx.unlock();
+    
 }
 
 //Here we place the coordinates into a MatrixXd
@@ -165,12 +178,14 @@ vector<Point> Client::interpretBuf(char buf[ARRLEN]){
         pnt.y = arr.at(i*2+1);
         boxDict.push_back (pnt);
     }
+    std::cout << "End of interpret buf." << std::endl;
     return boxDict;
 }
 
 //Here we place the coordinates into a MatrixXd
-vector<string> Client::interpretLabels(char buf[LABELLEN]){
-    
+vector<string> Client::interpretLabels(char *buf){
+    std::cout << "Start of interpret labels" << std::endl;
+    printf("%s\n", buf);
     vector<string> arr;
     int i = 1;
     while(buf[i] != ']'){
@@ -178,9 +193,9 @@ vector<string> Client::interpretLabels(char buf[LABELLEN]){
         while(buf[i] != ',' && buf[i] != ']'){
             if(buf[i] != '\"' && buf[i]>21 && buf[i] < 126)
                 label.push_back(buf[i]);
+                //std::cout << buf[i] << std::endl;
             i++;
         }
-
         if(buf[i] == ',')
             i++;
         
@@ -188,5 +203,6 @@ vector<string> Client::interpretLabels(char buf[LABELLEN]){
     }
     
     
+    std::cout << "End of interpret labels." << std::endl;
     return arr;
 }

@@ -5,6 +5,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <Eigen/Dense>
 #include <opencv2/core/types.hpp>
+#include <mutex> 
 
 using namespace Eigen;
 using namespace cv;
@@ -22,11 +23,15 @@ class Client {
         void sendCV(int sockfd, cv::Mat src);
         vector<Point> interpretBuf(char *buf);
         vector<string> interpretLabels(char *buf);
+        std::mutex mtx;
 
     private:
         cv::Mat _photo;
         vector<Point> boxes;
         vector<string> labels;
+        
+
+        
         
 
 };
